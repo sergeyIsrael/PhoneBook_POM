@@ -33,6 +33,9 @@ public class ContactListScreen extends BaseScreen {
     @FindBy(xpath = "//*[@resource-id='android:id/button1']")
     MobileElement yesBtn;
 
+    @FindBy(xpath = "//*[@resource-id='com.sheygam.contactapp:id/emptyTxt']")
+    MobileElement emptyTxt;
+
     @FindBy(xpath = "//*[@resource-id='com.sheygam.contactapp:id/rowContainer']")
     List<MobileElement> contacts;
 
@@ -73,7 +76,7 @@ public class ContactListScreen extends BaseScreen {
         return false;
     }
 
-    public ContactListScreen removeOneontact(){
+    public ContactListScreen removeOneContact(){
         waitElement(addContactBtn, 5);
         MobileElement contact = contacts.get(0);
         phoneNumber = phones.get(0).getText();
@@ -96,6 +99,71 @@ public class ContactListScreen extends BaseScreen {
     public boolean isContactRemoved(){
         boolean res = phones.contains(phoneNumber); // false
         return !res; // true
+    }
+
+    public ContactListScreen removeAllContacts(){
+        waitElement(addContactBtn, 5);
+        while (contacts.size() > 0){
+            removeOneContact();
+        }
+        return this;
+    }
+
+    public boolean isNoContactMessage(){
+        return shouldHave(emptyTxt, "No Contacts. Add One more!", 5);
+    }
+
+    public ContactListScreen provideContacts(){
+        while (contacts.size() < 2){
+            addNewContact();
+        }
+        return this;
+    }
+
+    public ContactListScreen addNewContact(){
+        int i = (int) (System.currentTimeMillis() / 1000) % 360;
+        Contact contact = Contact.builder()
+                .name("Dima_" + i)
+                .lastName("Samoilov")
+                .email("sss_" + i + "@mail.com")
+                .phone("12345678" + i)
+                .address("Moscow")
+                .description("who is it?")
+                .build();
+
+                new ContactListScreen(driver)
+                        .openContactForm()
+                        .fillContactForm(contact)
+                        .submitContact();
+        return this;
+    }
+
+    public EditContactScreen editOneContactSwipe(){
+        waitElement(addContactBtn, 5);
+        MobileElement contact = contacts.get(0);
+        phoneNumber = phones.get(0).getText();
+        Rectangle rect = contact.getRect();
+        int xStart = rect.getX() + rect.getWidth() / 8;
+        int xEnd = xStart+ rect.getWidth() * 6 / 8; // 1/8 + 6/8 = 7/8
+        int y = rect.getY() + rect.getHeight() / 2;
+
+        TouchAction<?> touchAction = new TouchAction<>(driver);
+        touchAction.longPress(PointOption.point(xEnd, y)) // Нажать и держать tut
+                .moveTo(PointOption.point(xStart, y)) // тянуть до
+                .release() // Отпустить
+                .perform();
+
+        pause(2000);
+        return new EditContactScreen(driver);
+    }
+
+    public boolean isContactContains(String text){
+        contacts.get(0).click();
+        Contact contact = new ViewContactScreen(driver)
+                .viewContactObject();
+
+        driver.navigate().back();
+        return contact.toString().contains(text);
     }
 
 
