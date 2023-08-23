@@ -15,7 +15,7 @@ public class AddNewContactTests extends AppiumConfig {
     public void precondition(){
         new SplashScreen(driver)
                 .gotoAuthenticationScreen()
-                .fillEmail("serg3@mail.com")
+                .fillEmail("sergei1@mail.com")
                 .fillPassword("Ss34567$")
                 .submitLogin();
      }
@@ -37,11 +37,10 @@ public class AddNewContactTests extends AppiumConfig {
                  .openContactForm()
                  .fillContactForm(contact)
                  .submitContact()
-                 .isContactAdded(contact)
+//                 .isContactAdded(contact)
+                 .isContactAddedScroll(contact)
          );
      }
-
-
 
 
 
